@@ -38,23 +38,23 @@ public class ItemDaoImpl implements ItemDao {
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
 
-	private static final String SELECT_ALL = "SELECT item_id, item_name, price, description FROM item_SPRING3 ORDER BY ITEM_ID DESC";
+	private static final String SELECT_ALL = "SELECT item_id, item_name, price, description FROM item";
 
 	public List<Item> findAll() {
 		RowMapper<Item> mapper = new BeanPropertyRowMapper<Item>(Item.class);
 		return this.template.query(ItemDaoImpl.SELECT_ALL, mapper);
 	}
 
-	private static final String SELECT_BY_PRIMARY_KEY = "SELECT item_id, item_name, price, description FROM item_SPRING3 WHERE item_id = ?";
+	private static final String SELECT_BY_PRIMARY_KEY = "SELECT item_id, item_name, price, description FROM item WHERE item_id = ?";
 
 	public Item findByPrimaryKey(Integer itemId) {
 		RowMapper<Item> mapper = new BeanPropertyRowMapper<Item>(Item.class);
 		return this.template.queryForObject(SELECT_BY_PRIMARY_KEY, mapper, itemId);
 	}
 
-	//private static final String INSERT = "INSERT INTO item_SPRING3(item_name, price, description, picture) values (?, ?, ?, ?)";
-	private static final String INSERT = "INSERT INTO item_SPRING3(item_id, item_name, price, description, picture) values (ITEM_SPRING3_seq.NEXTVAL, ?, ?, ?, ?)";
-
+	//private static final String INSERT = "INSERT INTO item(item_name, price, description, picture) values (?, ?, ?, ?)";
+	private static final String INSERT = "INSERT INTO item(item_id, item_name, price, description, picture) values (sequence01.NEXTVAL, ?, ?, ?, ?)";
+	
 	public void create(final Item item) {
 		this.jdbcTemplate.execute(INSERT, new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
 			@Override
@@ -73,18 +73,39 @@ public class ItemDaoImpl implements ItemDao {
 		});
 	}
 
+	
+	private static final String INSERT2 = "INSERT INTO item2(item_name, price, description, picture) values (?, ?, ?, ?)";
+
+	public void create2(final Item item) {
+		this.jdbcTemplate.execute(INSERT2, new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
+			@Override
+			protected void setValues(PreparedStatement ps, LobCreator lobCreator) throws SQLException,
+					DataAccessException {
+				int index = 0;
+				ps.setString(++index, item.getItemName());
+				ps.setInt(++index, item.getPrice().intValue());
+				ps.setString(++index, item.getDescription());
+				try {
+					lobCreator.setBlobAsBytes(ps, ++index, item.getPicture().getBytes());
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+	}
+	
 	public void delete(Item item) {
-		this.template.update("DELETE FROM item_SPRING3 where item_id = ?", item.getItemId());
+		this.template.update("DELETE FROM item where item_id = ?", item.getItemId());
 	}
 
-	private static final String SELECT_BY_ITEM_NAME = "SELECT item_id, item_name, price, description FROM item_SPRING3 WHERE item_name LIKE ?";
+	private static final String SELECT_BY_ITEM_NAME = "SELECT item_id, item_name, price, description FROM item WHERE item_name LIKE ?";
 
 	public List<Item> findByItemName(String itemName) {
 		RowMapper<Item> mapper = new BeanPropertyRowMapper<Item>(Item.class);
 		return this.template.query(ItemDaoImpl.SELECT_BY_ITEM_NAME, mapper, itemName + "%");
 	}
 
-	private static final String UPDATE = "UPDATE item_SPRING3 SET item_name = ?, price = ?, description = ?, picture = ? WHERE item_id = ?";
+	private static final String UPDATE = "UPDATE item SET item_name = ?, price = ?, description = ?, picture = ? WHERE item_id = ?";
 
 	public void udpate(final Item item) {
 		this.jdbcTemplate.execute(UPDATE, new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
@@ -106,7 +127,7 @@ public class ItemDaoImpl implements ItemDao {
 	}
 
 	public InputStream getPicture(Integer itemId) {
-		return this.template.queryForObject("SELECT picture FROM item_SPRING3 WHERE item_id = ?", new RowMapper<InputStream>() {
+		return this.template.queryForObject("SELECT picture FROM item WHERE item_id = ?", new RowMapper<InputStream>() {
 			public InputStream mapRow(ResultSet rs, int i) throws SQLException {
 				return lobHandler.getBlobAsBinaryStream(rs, "picture");
 			}

@@ -15,6 +15,8 @@ public interface ItemDao {
 
 	void create(Item item);
 
+	void create2(Item item);
+	
 	void udpate(Item item);
 
 	void delete(Item item);

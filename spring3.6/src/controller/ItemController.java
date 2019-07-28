@@ -72,7 +72,7 @@ public class ItemController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView register(@Valid Item item, BindingResult bindingResult) {
+	public ModelAndView register(@Valid Item item, BindingResult bindingResult) throws Exception {
 		if (bindingResult.hasErrors()) {
 			ModelAndView modelAndView = new ModelAndView("add");
 			modelAndView.getModel().putAll(bindingResult.getModel());

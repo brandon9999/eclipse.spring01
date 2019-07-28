@@ -11,7 +11,7 @@ public interface ItemService {
 	
 	List<Item> getItemByItemName(String itemName);
 	
-	void entryItem(Item item);
+	void entryItem(Item item) throws Exception;
 	
 	void updateItem(Item item);
 	
