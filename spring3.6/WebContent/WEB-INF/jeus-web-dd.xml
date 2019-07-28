@@ -4,6 +4,6 @@
     <enable-jsp>true</enable-jsp>
     <auto-reload>
         <enable-reload>true</enable-reload>
-        <check-on-demand>true</check-on-demand>
+        <check-on-demand>false</check-on-demand>
     </auto-reload>
 </jeus-web-dd>
